@@ -9,9 +9,9 @@ namespace Generator
         {
             var filePaths = GetFilePaths(path);
 
-            var songs = filePaths.Select(x => GetSong(x)).OrderBy(x => x.Title).ToArray();
+            var songs = filePaths.Select(x => GetSong(x)).OrderBy(x => x.Title).GroupBy(x => $"{x.Title}_{x.Text}").ToArray();
 
-            string tableOfContents = GetTableOfContents(songs);
+            string tableOfContents = GetTableOfContents(songs.Select(x => x.First()));
 
             var songFragments = songs.Select(x => GetSongFragment(x)).ToArray();
 
@@ -24,7 +24,7 @@ namespace Generator
 
         private static IEnumerable<string> GetFilePaths(string path)
         {
-            var enumerationOptions = new EnumerationOptions { RecurseSubdirectories = false };
+            var enumerationOptions = new EnumerationOptions { RecurseSubdirectories = true };
             var filePaths = Directory.GetFiles(path, "*.mscx", enumerationOptions).OrderBy(x => x).ToArray();
 
             return filePaths;
@@ -122,12 +122,20 @@ namespace Generator
             return html;
         }
 
-        private static string GetSongFragment(Song song)
+        private static string GetSongFragment(IGrouping<string, Song> songs)
         {
+            var song = songs.First();
+
+            var urls = songs.Select(x => x.Url);
+
+            var links = urls.Select(x => $"""<a href="{x}" target="_blank">[kotta]</a> """);
+
+            string linkText = string.Join(" ", links);
+
             string html = $"""
                     <a id="{song.FileName}"></a>
                     <h2>{song.Title}</h2>
-                    <div><a href="{song.Url}" target="_blank">[kotta]</a> <a href="#top">[top]</a></div>
+                    <div>{linkText} <a href="#top">[top]</a></div>
                     <div class="text">
             {song.Text}</div>
             """;
