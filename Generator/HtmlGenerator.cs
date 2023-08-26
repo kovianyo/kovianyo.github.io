@@ -97,21 +97,27 @@ namespace Generator
         {
             var stringBuilder = new StringBuilder();
 
+            stringBuilder.AppendLine("""        <div style="padding-bottom: 1em">""");
+
             foreach (var song in songs)
             {
-                stringBuilder.AppendLine($"""        <a href="#{song.FileName}">{song.Title}</a><br />""");
+                stringBuilder.AppendLine($"""          <div class="toc"><a href="#{song.FileName}">{song.Title}</a></div>""");
             }
 
-            return stringBuilder.ToString();
+            stringBuilder.AppendLine("        </div>");
+
+            string html = stringBuilder.ToString();
+
+            return html;
         }
 
         private static string GetSongFragment(Song song)
         {
             string html = $"""
-                    <a id="{song.FileName}">
+                    <a id="{song.FileName}"></a>
                     <h2>{song.Title}</h2>
                     <div><a href="{song.Url}" target="_blank">[kotta]</a> <a href="#top">[top]</a></div>
-                    <div style="white-space: pre-wrap">
+                    <div style="white-space: pre-wrap; padding-bottom: 1em;">
             {song.Text}</div>
             """;
 
@@ -120,20 +126,35 @@ namespace Generator
 
         private static string GetHtml(string tableOfContents, string songFragment)
         {
-            string html = $"""
+            string html = $$"""
             <!doctype html>
             <html>
                 <head>
                     <meta charset="utf-8"/>
                     <title>Kovi moldvai dalai</title>
+                    <style>
+                    body 
+                    { 
+                        color: rgb(230, 237, 243);
+                        background-color: rgb(22, 27, 34);
+                    }
+                    a 
+                    {
+                        color: hsl(215, 93%, 78%);
+                    }
+                    div.toc 
+                    {
+                        padding-bottom: 0.3em;
+                    }
+                    </style>
                 </head>
-                <body>
-                    <a id="top">
+                <body style="padding: 1em">
+                    <a id="top"></a>
                     <h1>Kovi moldvai dalai</h1>
                     <div><a href="https://musescore.com/user/443/sets/4665831">[kották]</a></div><br />
 
-            {tableOfContents}
-            {songFragment}
+            {{tableOfContents}}
+            {{songFragment}}
                 </body>
             </html>
             """;
