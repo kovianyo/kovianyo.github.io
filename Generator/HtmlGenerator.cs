@@ -40,9 +40,7 @@ namespace Generator
 
             string title = GetTitle(document);
 
-            var texts = document.Descendants("TBox").SelectMany(x => x.Descendants("text")).Select(x => x.Value.Trim()).ToArray();
-
-            string text = string.Join(string.Empty, texts);
+            string text = GetText(document);
 
             string? source = GetMetaTagValue(metaTags, "source");
 
@@ -91,6 +89,19 @@ namespace Generator
             string? metaTagValue = metaTag?.Value;
 
             return metaTagValue;
+        }
+
+        private static string GetText(XDocument document)
+        {
+            var texts = document.Descendants("Text")
+                .Where(x => x.Descendants("style").Any(y => y.Value == "Frame" || y.Value == "frame"))
+                .SelectMany(x => x.Descendants("text"))
+                .Select(x => x.Value.Trim())
+                .ToArray();
+
+            string text = string.Join("\n\n", texts);
+
+            return text;
         }
 
         private static string GetTableOfContents(IEnumerable<Song> songs)
