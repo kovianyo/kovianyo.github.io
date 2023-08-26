@@ -101,7 +101,7 @@ namespace Generator
 
             foreach (var song in songs)
             {
-                stringBuilder.AppendLine($"""          <div class="toc"><a href="#{song.FileName}">{song.Title}</a></div>""");
+                stringBuilder.AppendLine($"""          <a href="#{song.FileName}">{song.Title}</a><br />""");
             }
 
             stringBuilder.AppendLine("        </div>");
@@ -117,7 +117,7 @@ namespace Generator
                     <a id="{song.FileName}"></a>
                     <h2>{song.Title}</h2>
                     <div><a href="{song.Url}" target="_blank">[kotta]</a> <a href="#top">[top]</a></div>
-                    <div style="white-space: pre-wrap; padding-bottom: 1em;">
+                    <div class="text">
             {song.Text}</div>
             """;
 
@@ -145,6 +145,11 @@ namespace Generator
                     div.toc 
                     {
                         padding-bottom: 0.3em;
+                    }
+                    div.text
+                    {
+                        white-space: pre-wrap; 
+                        padding-bottom: 2em;
                     }
                     </style>
                 </head>
