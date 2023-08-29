@@ -36,7 +36,7 @@ namespace Generator
             var enumerationOptions = new EnumerationOptions { RecurseSubdirectories = false };
             var filePaths = Directory.GetFiles(path, "*.mscx", enumerationOptions).OrderBy(x => x).ToArray();
 
-            var songs = filePaths.Select(x => GetSong(x)).ToArray();
+            var songs = filePaths.Select(x => GetSong(x)).Where(x => !string.IsNullOrEmpty(x.Text)).ToArray();
 
             var subdirectories = Directory.GetDirectories(path);
 
