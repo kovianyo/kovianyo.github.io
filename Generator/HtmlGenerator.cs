@@ -126,7 +126,7 @@ namespace Generator
         {
             var song = songs.First();
 
-            var urls = songs.Select(x => x.Url);
+            var urls = songs.Select(x => x.Url).Where(x => !string.IsNullOrEmpty(x)).Select(x => x!).ToArray();
 
             var links = urls.Select(x => $"""<a href="{x}" target="_blank">[kotta]</a> """);
 
