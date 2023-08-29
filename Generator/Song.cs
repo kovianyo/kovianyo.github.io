@@ -1,5 +1,8 @@
+using System.Diagnostics;
+
 namespace Generator
 {
+    [DebuggerDisplay("Title: {Title}, FileName: {FileName}")]
     public class Song
     {
         public required string Title { get; init; }

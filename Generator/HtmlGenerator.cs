@@ -7,27 +7,56 @@ namespace Generator
     {
         public static void GenerateHtml(string path)
         {
-            var filePaths = GetFilePaths(path);
+            var scoreFolder = GetScoreFolder(path);
 
-            var songs = filePaths.Select(x => GetSong(x)).OrderBy(x => x.Title).GroupBy(x => $"{x.Title}_{x.Text}").ToArray();
+            var songs = scoreFolder.Songs.OrderBy(x => x.Title).GroupBy(x => $"{x.Title}_{x.Text}").ToArray();
 
-            string tableOfContents = GetTableOfContents(songs.Select(x => x.First()));
+            string tableOfContents = GetTableOfContents(scoreFolder);
 
-            var songFragments = songs.Select(x => GetSongFragment(x)).ToArray();
-
-            string songFragment = string.Join("\n\n", songFragments);
+            string songFragment = GetSongTexts(scoreFolder);
 
             string html = GetHtml(tableOfContents, songFragment);
 
             WriteHtml(html);
         }
 
-        private static IEnumerable<string> GetFilePaths(string path)
+        private static ScoreFolder GetScoreFolder(string path)
         {
-            var enumerationOptions = new EnumerationOptions { RecurseSubdirectories = true };
+            path = path.TrimEnd('/'); // TODO Find a better way
+
+            string? folderName = Path.GetFileName(path) ?? string.Empty;
+
+            string? title = null;
+
+            string titleFilePath = Path.Combine(path, ".title");
+
+            if (File.Exists(titleFilePath))
+            {
+                title = File.ReadAllText(titleFilePath);
+            }
+
+            var enumerationOptions = new EnumerationOptions { RecurseSubdirectories = false };
             var filePaths = Directory.GetFiles(path, "*.mscx", enumerationOptions).OrderBy(x => x).ToArray();
 
-            return filePaths;
+            var songs = filePaths.Select(x => GetSong(x)).ToArray();
+
+            var subdirectories = Directory.GetDirectories(path);
+
+            var scoreFolders = subdirectories
+                .Select(GetScoreFolder)
+                .Where(x => x.Songs.Any() || x.SubFolders.Any())
+                .OrderBy(x => x.Title)
+                .ToArray() ?? Enumerable.Empty<ScoreFolder>();
+
+            var scoreFolder = new ScoreFolder
+            {
+                FolderName = folderName,
+                Title = title ?? folderName,
+                Songs = songs,
+                SubFolders = scoreFolders,
+            };
+
+            return scoreFolder;
         }
 
         private static Song GetSong(string filePath)
@@ -104,25 +133,61 @@ namespace Generator
             return text;
         }
 
-        private static string GetTableOfContents(IEnumerable<Song> songs)
+        private static string GetTableOfContents(ScoreFolder scoreFolder, int level = 1, string? sectionTitle = null)
         {
             var stringBuilder = new StringBuilder();
 
-            stringBuilder.AppendLine("""        <div style="padding-bottom: 1em">""");
-
-            foreach (var song in songs)
+            if (sectionTitle != null)
             {
-                stringBuilder.AppendLine($"""          <a href="#{song.FileName}">{song.Title}</a><br />""");
+                stringBuilder.AppendLine($"        <h{level}>{sectionTitle}</h{level}>");
             }
 
-            stringBuilder.AppendLine("        </div>");
+            if (scoreFolder.Songs.Any())
+            {
+                stringBuilder.AppendLine("""        <div style="padding-bottom: 1em">""");
+
+                foreach (var song in scoreFolder.Songs)
+                {
+                    stringBuilder.AppendLine($"""          <a href="#{song.FileName}">{song.Title}</a><br />""");
+                }
+
+                stringBuilder.AppendLine("        </div>");
+            }
+
+            var subSegments = scoreFolder.SubFolders.Select(x => GetTableOfContents(x, level + 1, x.Title)).ToList();
+
+            subSegments.ForEach(x => stringBuilder.AppendLine(x));
 
             string html = stringBuilder.ToString();
 
             return html;
         }
 
-        private static string GetSongFragment(IGrouping<string, Song> songs)
+        private static string GetSongTexts(ScoreFolder scoreFolder, int level = 1, string? sectionTitle = null)
+        {
+            var stringBuilder = new StringBuilder();
+
+            if (sectionTitle != null)
+            {
+                stringBuilder.AppendLine($"<h{level}>{sectionTitle}</h{level}>");
+            }
+
+            var songs = scoreFolder.Songs.OrderBy(x => x.Title).GroupBy(x => $"{x.Title}_{x.Text}").ToArray();
+
+            var songFragments = songs.Select(x => GetSongFragment(x, level + 1)).ToList();
+
+            songFragments.ForEach(x => stringBuilder.AppendLine(x));
+
+            var subSegments = scoreFolder.SubFolders.Select(x => GetSongTexts(x, level + 1, x.Title)).ToList();
+
+            subSegments.ForEach(x => stringBuilder.AppendLine(x));
+
+            string html = stringBuilder.ToString();
+
+            return html;
+        }
+
+        private static string GetSongFragment(IGrouping<string, Song> songs, int level = 2)
         {
             var song = songs.First();
 
@@ -134,7 +199,7 @@ namespace Generator
 
             string html = $"""
                     <a id="{song.FileName}"></a>
-                    <h2>{song.Title}</h2>
+                    <h{level}>{song.Title}</h{level}>
                     <div>{linkText} <a href="#top">[top]</a></div>
                     <div class="text">
             {song.Text}</div>
