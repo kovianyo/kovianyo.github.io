@@ -9,8 +9,6 @@ namespace Generator
         {
             var scoreFolder = GetScoreFolder(path);
 
-            var songs = scoreFolder.Songs.OrderBy(x => x.Title).GroupBy(x => $"{x.Title}_{x.Text}").ToArray();
-
             string tableOfContents = GetTableOfContents(scoreFolder);
 
             string songFragment = GetSongTexts(scoreFolder);
@@ -45,7 +43,7 @@ namespace Generator
             var scoreFolders = subdirectories
                 .Select(GetScoreFolder)
                 .Where(x => x.Songs.Any() || x.SubFolders.Any())
-                .OrderBy(x => x.Title)
+                .OrderBy(x => x.FolderName)
                 .ToArray() ?? Enumerable.Empty<ScoreFolder>();
 
             var scoreFolder = new ScoreFolder
