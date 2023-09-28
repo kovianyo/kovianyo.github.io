@@ -54,6 +54,8 @@ namespace Generator
                 SubFolders = scoreFolders,
             };
 
+            songs.ToList().ForEach(x => x.ScoreFolder = scoreFolder);
+
             return scoreFolder;
         }
 
@@ -137,7 +139,8 @@ namespace Generator
 
             if (sectionTitle != null)
             {
-                stringBuilder.AppendLine($"        <h{level}>{sectionTitle}</h{level}>");
+                stringBuilder.AppendLine($"""        <a id="{scoreFolder.FolderName}"></a>""");
+                stringBuilder.AppendLine($"""        <h{level}>{sectionTitle}</h{level}>""");
             }
 
             if (scoreFolder.Songs.Any())
@@ -193,15 +196,28 @@ namespace Generator
 
             var links = urls.Select(x => $"""<a href="{x}" target="_blank">[kotta]</a> """);
 
-            string linkText = string.Join(" ", links);
+            string scoreLinkText = string.Join(" ", links);
 
-            string html = $"""
-                    <a id="{song.FileName}"></a>
-                    <h{level}>{song.Title}</h{level}>
-                    <div>{linkText} <a href="#top">[top]</a></div>
-                    <div class="text">
-            {song.Text}</div>
-            """;
+            string? categoryLink = song.ScoreFolder != null ? $"""<a href="#{song.ScoreFolder.FolderName}">[kategória]</a>""" : null;
+
+            var stringBuilder = new StringBuilder();
+
+            stringBuilder.AppendLine($"""        <a id="{song.FileName}"></a>""");
+            stringBuilder.AppendLine($"""        <h{level}>{song.Title}</h{level}>""");
+            stringBuilder.AppendLine($"""        <div>""");
+            stringBuilder.AppendLine($"""          {scoreLinkText}""");
+
+            if (!string.IsNullOrEmpty(categoryLink))
+            {
+                stringBuilder.AppendLine($"""          {categoryLink}""");
+            }
+
+            stringBuilder.AppendLine($"""        </div>""");
+
+            stringBuilder.AppendLine($"""        <div class="text">""");
+            stringBuilder.AppendLine($"""{song.Text}</div>""");
+
+            string html = stringBuilder.ToString();
 
             return html;
         }
