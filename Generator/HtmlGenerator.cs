@@ -38,11 +38,13 @@ namespace Generator
 
             var songs = filePaths.Select(x => GetSong(x)).Where(x => !string.IsNullOrEmpty(x.Text)).ToArray();
 
+            var songGroups = songs.OrderBy(x => x.Title).GroupBy(x => $"{x.Title}_{x.Text}");
+
             var subdirectories = Directory.GetDirectories(path);
 
             var scoreFolders = subdirectories
                 .Select(GetScoreFolder)
-                .Where(x => x.Songs.Any() || x.SubFolders.Any())
+                .Where(x => x.SongGroups.Any() || x.SubFolders.Any())
                 .OrderBy(x => x.FolderName)
                 .ToArray() ?? Enumerable.Empty<ScoreFolder>();
 
@@ -50,7 +52,7 @@ namespace Generator
             {
                 FolderName = folderName,
                 Title = title ?? folderName,
-                Songs = songs,
+                SongGroups = songGroups,
                 SubFolders = scoreFolders,
             };
 
@@ -143,11 +145,11 @@ namespace Generator
                 stringBuilder.AppendLine($"""      <h{level}>{sectionTitle}</h{level}>""");
             }
 
-            if (scoreFolder.Songs.Any())
+            if (scoreFolder.SongGroups.Any())
             {
                 stringBuilder.AppendLine("""      <div style="padding-bottom: 1em">""");
 
-                var songs = scoreFolder.Songs.OrderBy(x => x.Title).GroupBy(x => $"{x.Title}_{x.Text}").Select(x => x.First()).ToArray(); // TODO Group songs earlier
+                var songs = scoreFolder.SongGroups.Select(x => x.First()).ToArray();
 
                 foreach (var song in songs)
                 {
@@ -175,9 +177,9 @@ namespace Generator
                 stringBuilder.AppendLine($"      <h{level}>{sectionTitle}</h{level}>");
             }
 
-            var songs = scoreFolder.Songs.OrderBy(x => x.Title).GroupBy(x => $"{x.Title}_{x.Text}").ToArray();
+            var songGroups = scoreFolder.SongGroups.ToArray();
 
-            var songFragments = songs.Select(x => GetSongFragment(x, level + 1)).ToList();
+            var songFragments = songGroups.Select(x => GetSongFragment(x, level + 1)).ToList();
 
             songFragments.ForEach(x => stringBuilder.AppendLine(x));
 

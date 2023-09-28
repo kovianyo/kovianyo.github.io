@@ -9,7 +9,7 @@ namespace Generator
 
         public required string Title { get; init; }
 
-        public required IEnumerable<Song> Songs { get; init; }
+        public required IEnumerable<IGrouping<string, Song>> SongGroups { get; init; }
 
         public required IEnumerable<ScoreFolder> SubFolders { get; init; }
     }
