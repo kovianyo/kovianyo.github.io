@@ -139,20 +139,20 @@ namespace Generator
 
             if (sectionTitle != null)
             {
-                stringBuilder.AppendLine($"""        <a id="{scoreFolder.FolderName}"></a>""");
-                stringBuilder.AppendLine($"""        <h{level}>{sectionTitle}</h{level}>""");
+                stringBuilder.AppendLine($"""      <a id="{scoreFolder.FolderName}"></a>""");
+                stringBuilder.AppendLine($"""      <h{level}>{sectionTitle}</h{level}>""");
             }
 
             if (scoreFolder.Songs.Any())
             {
-                stringBuilder.AppendLine("""        <div style="padding-bottom: 1em">""");
+                stringBuilder.AppendLine("""      <div style="padding-bottom: 1em">""");
 
                 foreach (var song in scoreFolder.Songs)
                 {
-                    stringBuilder.AppendLine($"""          <a href="#{song.FileName}">{song.Title}</a><br />""");
+                    stringBuilder.AppendLine($"""        <a href="#{song.FileName}">{song.Title}</a><br />""");
                 }
 
-                stringBuilder.AppendLine("        </div>");
+                stringBuilder.AppendLine("      </div>");
             }
 
             var subSegments = scoreFolder.SubFolders.Select(x => GetTableOfContents(x, level + 1, x.Title)).ToList();
@@ -170,7 +170,7 @@ namespace Generator
 
             if (sectionTitle != null)
             {
-                stringBuilder.AppendLine($"<h{level}>{sectionTitle}</h{level}>");
+                stringBuilder.AppendLine($"      <h{level}>{sectionTitle}</h{level}>");
             }
 
             var songs = scoreFolder.Songs.OrderBy(x => x.Title).GroupBy(x => $"{x.Title}_{x.Text}").ToArray();
@@ -202,19 +202,19 @@ namespace Generator
 
             var stringBuilder = new StringBuilder();
 
-            stringBuilder.AppendLine($"""        <a id="{song.FileName}"></a>""");
-            stringBuilder.AppendLine($"""        <h{level}>{song.Title}</h{level}>""");
-            stringBuilder.AppendLine($"""        <div>""");
-            stringBuilder.AppendLine($"""          {scoreLinkText}""");
+            stringBuilder.AppendLine($"""      <a id="{song.FileName}"></a>""");
+            stringBuilder.AppendLine($"""      <h{level}>{song.Title}</h{level}>""");
+            stringBuilder.AppendLine($"""      <div>""");
+            stringBuilder.AppendLine($"""        {scoreLinkText}""");
 
             if (!string.IsNullOrEmpty(categoryLink))
             {
-                stringBuilder.AppendLine($"""          {categoryLink}""");
+                stringBuilder.AppendLine($"""        {categoryLink}""");
             }
 
-            stringBuilder.AppendLine($"""        </div>""");
+            stringBuilder.AppendLine($"""      </div>""");
 
-            stringBuilder.AppendLine($"""        <div class="text">""");
+            stringBuilder.AppendLine($"""      <div class="text">""");
             stringBuilder.AppendLine($"""{song.Text}</div>""");
 
             string html = stringBuilder.ToString();
@@ -227,38 +227,38 @@ namespace Generator
             string html = $$"""
             <!doctype html>
             <html>
-                <head>
-                    <meta charset="utf-8"/>
-                    <title>Kovi moldvai dalai</title>
-                    <style>
-                    body 
-                    { 
-                        color: rgb(230, 237, 243);
-                        background-color: rgb(22, 27, 34);
-                    }
-                    a 
-                    {
-                        color: hsl(215, 93%, 78%);
-                    }
-                    div.toc 
-                    {
-                        padding-bottom: 0.3em;
-                    }
-                    div.text
-                    {
-                        white-space: pre-wrap; 
-                        padding-bottom: 2em;
-                    }
-                    </style>
-                </head>
-                <body style="padding: 1em">
-                    <a id="top"></a>
-                    <h1>Kovi moldvai dalai</h1>
-                    <div><a href="https://musescore.com/user/443/sets/4665831">[kották]</a></div><br />
+              <head>
+                <meta charset="utf-8"/>
+                <title>Kovi moldvai dalai</title>
+                <style>
+                body 
+                { 
+                  color: rgb(230, 237, 243);
+                  background-color: rgb(22, 27, 34);
+                }
+                a 
+                {
+                  color: hsl(215, 93%, 78%);
+                }
+                div.toc 
+                {
+                  padding-bottom: 0.3em;
+                }
+                div.text
+                {
+                  white-space: pre-wrap; 
+                  padding-bottom: 2em;
+                }
+                </style>
+              </head>
+              <body style="padding: 1em">
+                <a id="top"></a>
+                <h1>Kovi moldvai dalai</h1>
+                <div><a href="https://musescore.com/user/443/sets/4665831">[kották]</a></div><br />
 
             {{tableOfContents}}
             {{songFragment}}
-                </body>
+              </body>
             </html>
             """;
 
