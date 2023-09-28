@@ -202,7 +202,7 @@ namespace Generator
 
             string scoreLinkText = string.Join(" ", links);
 
-            string? categoryLink = song.ScoreFolder != null ? $"""<a href="#{song.ScoreFolder.FolderName}">[kategória]</a>""" : null;
+            string? categoryLink = song.ScoreFolder != null ? $"""<a href="#{song.ScoreFolder.FolderName}">[kategória: {song.ScoreFolder.Title}]</a>""" : null;
 
             var stringBuilder = new StringBuilder();
 
