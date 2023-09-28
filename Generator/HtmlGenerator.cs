@@ -147,7 +147,9 @@ namespace Generator
             {
                 stringBuilder.AppendLine("""      <div style="padding-bottom: 1em">""");
 
-                foreach (var song in scoreFolder.Songs)
+                var songs = scoreFolder.Songs.OrderBy(x => x.Title).GroupBy(x => $"{x.Title}_{x.Text}").Select(x => x.First()).ToArray(); // TODO Group songs earlier
+
+                foreach (var song in songs)
                 {
                     stringBuilder.AppendLine($"""        <a href="#{song.FileName}">{song.Title}</a><br />""");
                 }
