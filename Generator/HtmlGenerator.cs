@@ -228,6 +228,9 @@ namespace Generator
 
         private static string GetHtml(string tableOfContents, string songFragment)
         {
+            string date = DateTime.Now.ToString("yyyy.MM.dd. HH:mm:ss");
+            string updated = $"Frissítve: {date}";
+
             string html = $$"""
             <!doctype html>
             <html>
@@ -262,6 +265,7 @@ namespace Generator
 
             {{tableOfContents}}
             {{songFragment}}
+              <div>{{updated}}</div>
               </body>
             </html>
             """;
